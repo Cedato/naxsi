@@ -6,6 +6,19 @@ nxapi/nxtool is the new learning tool, that attempts to perform the following :
   * Events management : Allow tagging of events into database to exclude them from wl gen process
   * Reporting : Display information about current DB content
 
+# Enable field data for relevant fields 
+
+var_name, whitelisted, server, uri, zone, ip, example as below:
+
+curl -XPOST 'http://localhost:9200/nxapi/_mapping/events?update_all_types' -d '{
+ "properties": {
+  "var_name": {
+   "type": "text",
+   "fielddata": true
+  }
+ }
+}'
+
 # Configuration file : nxapi.json
 
 nxapi uses a JSON file for its settings, such as :
