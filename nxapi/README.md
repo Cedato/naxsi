@@ -10,6 +10,7 @@ nxapi/nxtool is the new learning tool, that attempts to perform the following :
 
 var_name, whitelisted, server, uri, zone, ip, example as below:
 
+```
 curl -XPOST 'http://localhost:9200/nxapi/_mapping/events?update_all_types' -d '{
  "properties": {
   "var_name": {
@@ -18,6 +19,7 @@ curl -XPOST 'http://localhost:9200/nxapi/_mapping/events?update_all_types' -d '{
   }
  }
 }'
+```
 
 # Configuration file : nxapi.json
 
