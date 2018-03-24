@@ -72,12 +72,12 @@ class NxRating():
             else:
                 res = self.tr.search(self.esq[scope])
                 self.stats[scope][score] = res['hits']['total']
-            
+
             return self.stats[scope][score]
     def check_rule_score(self, tpl):
         """ wrapper to check_score, TOFIX ? """
-        return self.check_score(tpl_success=tpl.get('_success', None), 
-                                tpl_warnings=tpl.get('_warnings', None), 
+        return self.check_score(tpl_success=tpl.get('_success', None),
+                                tpl_warnings=tpl.get('_warnings', None),
                                 tpl_deny=tpl.get('_deny', None))
     def check_score(self, tpl_success=None, tpl_warnings=None, tpl_deny=None):
 #        pprint.pprint(self.stats)
@@ -112,7 +112,7 @@ class NxRating():
                     if debug is True:
                         print "[SUCCESS] KO, on "+k+" vs "+str(res['curr'])+", check :"+str(scheck[k][0])+" - "+str(scheck[k][1])
                     failed_tests["success"].append({'key' : k, 'criteria' : scheck[k], 'curr' : res['curr']})
-                
+
         for fcheck in [glb_warnings, tpl_warnings]:
             if fcheck is None:
                 continue
@@ -141,7 +141,7 @@ class NxRating():
         items = label.split('_')
         for x in range(len(items)):
             items[x] = items[x].replace("var-name", "var_name")
-            
+
         if len(items) == 2:
             scope = items[0]
             score = items[1]
@@ -311,7 +311,7 @@ class NxTranslate():
         return template
     def load_wl_file(self, wlf):
         """ Loads a file of whitelists,
-        convert them to ES queries, 
+        convert them to ES queries,
         and returns them as a list """
         esql = []
         try:
@@ -342,9 +342,9 @@ class NxTranslate():
         except:
             logging.warning("Unable to open rules file")
     def tpl2esq(self, ob, full=True):
-        ''' receives template or a rule, returns a valid 
+        ''' receives template or a rule, returns a valid
         ElasticSearch query '''
-        qr = { 
+        qr = {
             "query" : { "bool" : { "must" : [ ]} },
             "size" : self.es_max_size
             }
@@ -368,13 +368,13 @@ class NxTranslate():
         qr = self.append_gfilter(qr)
         return qr
     def append_gfilter(self, esq):
-        """ append global filters parameters 
+        """ append global filters parameters
         to and existing elasticsearch query """
         for x in self.cfg["global_filters"]:
             if x.startswith('?'):
                 x = x[1:]
                 if {"regexp" : { x : self.cfg["global_filters"]['?'+x] }} not in esq['query']['bool']['must']:
-                    esq['query']['bool']['must'].append({"regexp" : { x : self.cfg["global_filters"]['?'+x] }}) 
+                    esq['query']['bool']['must'].append({"regexp" : { x : self.cfg["global_filters"]['?'+x] }})
             else:
                 if {"match" : { x : self.cfg["global_filters"][x] }} not in esq['query']['bool']['must']:
                     esq['query']['bool']['must'].append({"match" : { x : self.cfg["global_filters"][x] }})
@@ -387,7 +387,7 @@ class NxTranslate():
         """ parses a fulltext naxsi whitelist,
         and outputs the matching es query (ie. for tagging),
         returns [True|False, error_string|ESquery] """
-        esq = { 
+        esq = {
             "query" : { "bool" : { "must" : [ ]} },
             "size" : self.es_max_size
             }
@@ -512,7 +512,7 @@ class NxTranslate():
         if rule.get('uri', None) is not None:
             wl += "$URL:"+rule['uri']
             wl += "|"
-        # whitelist targets name    
+        # whitelist targets name
         if rule.get('zone', '').endswith("|NAME"):
             tname = True
             zone = rule['zone'][:-5]
@@ -541,17 +541,17 @@ class NxTranslate():
             template[field] = x
         if self.cfg["elastic"].get("version", None) == "1":
             esq['facets'] =  { "facet_results" : {"terms": { "field": field, "size" : self.es_max_size} }}
-        elif self.cfg["elastic"].get("version", None) in ["2", "5"]:
+        elif self.cfg["elastic"].get("version", None) in ["2", "6"]:
             esq['aggregations'] =  { "agg1" : {"terms": { "field": field, "size" : self.es_max_size} }}
         else:
             print "Unknown / Unspecified ES version in nxapi.json : {0}".format(self.cfg["elastic"].get("version", "#UNDEFINED"))
             sys.exit(1)
-            
+
         res = self.search(esq)
 
         if self.cfg["elastic"].get("version", None) == "1":
             total = res['facets']['facet_results']['total']
-        elif self.cfg["elastic"].get("version", None) in ["2", "5"]:
+        elif self.cfg["elastic"].get("version", None) in ["2", "6"]:
             total = res['hits']['total']
         else:
             print "Unknown / Unspecified ES version in nxapi.json : {0}".format(self.cfg["elastic"].get("version", "#UNDEFINED"))
@@ -565,7 +565,7 @@ class NxTranslate():
                 count += 1
                 if count > limit:
                     break
-        elif self.cfg["elastic"].get("version", None) in ["2", "5"]:
+        elif self.cfg["elastic"].get("version", None) in ["2", "6"]:
             for x in res['aggregations']['agg1']['buckets']:
                 ret.append('{0} {1}% (total: {2}/{3})'.format(x['key'], round((float(x['doc_count']) / total) * 100, 2), x['doc_count'], total))
                 count += 1
@@ -584,7 +584,7 @@ class NxTranslate():
         #
         if self.cfg["elastic"].get("version", None) == "1":
             esq['facets'] =  { "facet_results" : {"terms": { "field": key, "size" : 50000} }}
-        elif self.cfg["elastic"].get("version", None) in ["2", "5"]:
+        elif self.cfg["elastic"].get("version", None) in ["2", "6"]:
             esq['aggregations'] =  { "agg1" : {"terms": { "field": key, "size" : 50000} }}
         else:
             print "Unknown / Unspecified ES version in nxapi.json : {0}".format(self.cfg["elastic"].get("version", "#UNDEFINED"))
@@ -595,21 +595,21 @@ class NxTranslate():
             for x in res['facets']['facet_results']['terms']:
                 if x['term'] not in uniques:
                     uniques.append(x['term'])
-        elif self.cfg["elastic"].get("version", None) in ["2", "5"]:
+        elif self.cfg["elastic"].get("version", None) in ["2", "6"]:
             for x in res['aggregations']['agg1']['buckets']:
                 if x['key'] not in uniques:
                     uniques.append(x['key'])
         else:
             print "Unknown / Unspecified ES version in nxapi.json : {0}".format(self.cfg["elastic"].get("version", "#UNDEFINED"))
             sys.exit(1)
-            
+
         return { 'list' : uniques, 'total' :  len(uniques) }
     def index(self, body, eid):
         return self.es.index(index=self.cfg["elastic"]["index"], doc_type=self.cfg["elastic"]["doctype"], body=body, id=eid)
     def search(self, esq, stats=False):
         """ search wrapper with debug """
         debug = False
-        
+
         if debug is True:
             print "#SEARCH:PARAMS:index="+self.cfg["elastic"]["index"]+", doc_type="+self.cfg["elastic"]["doctype"]+", body=",
             print "#SEARCH:QUERY:",
@@ -622,7 +622,7 @@ class NxTranslate():
             pprint.pprint(x)
         return x
     def normalize_checks(self, tpl):
-        """ replace check signs (<, >, <=, >=) by 
+        """ replace check signs (<, >, <=, >=) by
                 operator.X in a dict-form tpl """
         replace = {
             '>' : operator.gt,
@@ -630,7 +630,7 @@ class NxTranslate():
             '>=' : operator.ge,
             '<=' : operator.le
             }
-        
+
         for tpl_key in tpl.keys():
             for token in replace.keys():
                 if tpl[tpl_key][0] == token:
@@ -715,7 +715,7 @@ class NxTranslate():
                 rule[tpl_key] = tpl[tpl_key]
                 retlist += self.gen_wl(tpl, copy.copy(rule))
                 return retlist
-    
+
         esq = self.tpl2esq(rule)
         res = self.search(esq)
         if res['hits']['total'] > 0:
